@@ -205,7 +205,16 @@
 }
 
 @media (max-width: 768px) {
-  .mobile-menu-btn {
+ .mobile-menu-btn {
     display: block;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--dark);
+    cursor: pointer;
+  }
+
+  .nav-links {
+    display: none;
   }
 }
