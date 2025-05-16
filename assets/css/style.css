@@ -1338,6 +1338,7 @@ footer {
     transition: all 0.3s ease;
     animation: pulse 2s infinite;
     position: relative;
+    text-decoration: none;
 }
 
 /* WhatsApp Tooltip */
