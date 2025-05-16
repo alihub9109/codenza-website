@@ -1,36 +1,45 @@
 // === Mobile Navigation Toggle ===
 document.addEventListener('DOMContentLoaded', () => {
   const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-  const closeMobileMenu = document.querySelector('.close-mobile-menu');
+  const mobileMenuIcon = mobileMenuBtn.querySelector('i');
   const mobileNav = document.querySelector('.mobile-nav');
 
   function openMobileMenu() {
-    if (window.innerWidth <= 768) {
-      mobileNav.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
+    mobileNav.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    mobileMenuIcon.classList.remove('fa-bars');
+    mobileMenuIcon.classList.add('fa-times');
   }
 
-  function closeMenu() {
+  function closeMobileMenu() {
     mobileNav.classList.remove('active');
     document.body.style.overflow = '';
+    mobileMenuIcon.classList.remove('fa-times');
+    mobileMenuIcon.classList.add('fa-bars');
   }
 
-  mobileMenuBtn?.addEventListener('click', openMobileMenu);
-  closeMobileMenu?.addEventListener('click', closeMenu);
-
-  // Close mobile menu when any nav link is clicked
-  document.querySelectorAll('.mobile-nav a').forEach(link => {
-    link.addEventListener('click', closeMenu);
+  // Toggle menu based on current state
+  mobileMenuBtn.addEventListener('click', () => {
+    if (mobileNav.classList.contains('active')) {
+      closeMobileMenu();
+    } else {
+      openMobileMenu();
+    }
   });
 
-  // Auto-close menu if window resizes beyond mobile width
+  // Close on link click
+  document.querySelectorAll('.mobile-nav a').forEach(link => {
+    link.addEventListener('click', closeMobileMenu);
+  });
+
+  // Auto close if resized to desktop
   window.addEventListener('resize', () => {
     if (window.innerWidth > 768) {
-      closeMenu();
+      closeMobileMenu();
     }
   });
 });
+
 
 
 // === Header Scroll Effect ===
