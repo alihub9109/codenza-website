@@ -1,33 +1,37 @@
 // === Mobile Navigation Toggle ===
-const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-const closeMobileMenu = document.querySelector('.close-mobile-menu');
-const mobileNav = document.querySelector('.mobile-nav');
+document.addEventListener('DOMContentLoaded', () => {
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const closeMobileMenu = document.querySelector('.close-mobile-menu');
+  const mobileNav = document.querySelector('.mobile-nav');
 
-function openMobileMenu() {
-  if (window.innerWidth <= 768) {  // Only allow mobile menu toggle on small screens
-    mobileNav.classList.add('active');
-    document.body.style.overflow = 'hidden';
+  function openMobileMenu() {
+    if (window.innerWidth <= 768) {
+      mobileNav.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
   }
-}
 
-function closeMenu() {
-  mobileNav.classList.remove('active');
-  document.body.style.overflow = '';
-}
+  function closeMenu() {
+    mobileNav.classList.remove('active');
+    document.body.style.overflow = '';
+  }
 
-mobileMenuBtn?.addEventListener('click', openMobileMenu);
-closeMobileMenu?.addEventListener('click', closeMenu);
+  mobileMenuBtn?.addEventListener('click', openMobileMenu);
+  closeMobileMenu?.addEventListener('click', closeMenu);
 
-document.querySelectorAll('.mobile-nav-links a').forEach(link => {
-  link.addEventListener('click', closeMenu);
+  // Close mobile menu when any nav link is clicked
+  document.querySelectorAll('.mobile-nav a').forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  // Auto-close menu if window resizes beyond mobile width
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+      closeMenu();
+    }
+  });
 });
 
-// Optional: Close mobile menu if resizing above mobile breakpoint
-window.addEventListener('resize', () => {
-  if (window.innerWidth > 768) {
-    closeMenu();
-  }
-});
 
 // === Header Scroll Effect ===
 const header = document.getElementById('header');
