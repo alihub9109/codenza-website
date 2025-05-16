@@ -1296,7 +1296,7 @@ footer {
   display: none;
 }
 
-.fab {
+.fab, .fas{
     text-decoration: none;
 }
 
