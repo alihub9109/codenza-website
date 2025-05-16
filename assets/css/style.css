@@ -1296,9 +1296,14 @@ footer {
   display: none;
 }
 
-.fab, .fas{
-    text-decoration: none;
+.social-links a {
+  text-decoration: none;
 }
+
+.social-links a i {
+  text-decoration: none;
+}
+
 
 /* Floating Action Buttons Container - Side by Side */
 .fab-container-side {
