@@ -1292,6 +1292,10 @@ footer {
     cursor: pointer;
 }
 
+.mobile-menu-btn {
+  display: none;
+}
+
 /* Floating Action Buttons Container - Side by Side */
 .fab-container-side {
     position: fixed;
