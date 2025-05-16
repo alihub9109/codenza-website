@@ -1215,6 +1215,7 @@ footer {
     justify-content: center;
     color: var(--white);
     transition: all 0.3s ease;
+    text-decoration: none;
 }
 
 .footer-social a:hover {
