@@ -3,21 +3,30 @@ const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
 const closeMobileMenu = document.querySelector('.close-mobile-menu');
 const mobileNav = document.querySelector('.mobile-nav');
 
-mobileMenuBtn?.addEventListener('click', () => {
-  mobileNav.classList.add('active');
-  document.body.style.overflow = 'hidden';
-});
+function openMobileMenu() {
+  if (window.innerWidth <= 768) {  // Only allow mobile menu toggle on small screens
+    mobileNav.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
 
-closeMobileMenu?.addEventListener('click', () => {
+function closeMenu() {
   mobileNav.classList.remove('active');
   document.body.style.overflow = '';
-});
+}
+
+mobileMenuBtn?.addEventListener('click', openMobileMenu);
+closeMobileMenu?.addEventListener('click', closeMenu);
 
 document.querySelectorAll('.mobile-nav-links a').forEach(link => {
-  link.addEventListener('click', () => {
-    mobileNav.classList.remove('active');
-    document.body.style.overflow = '';
-  });
+  link.addEventListener('click', closeMenu);
+});
+
+// Optional: Close mobile menu if resizing above mobile breakpoint
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768) {
+    closeMenu();
+  }
 });
 
 // === Header Scroll Effect ===
@@ -29,9 +38,10 @@ window.addEventListener('scroll', () => {
 // === Smooth Anchor Scroll ===
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
-    e.preventDefault();
     const targetId = this.getAttribute('href');
-    if (targetId === '#') return;
+    if (targetId === '#' || targetId === '') return;
+
+    e.preventDefault();
     const target = document.querySelector(targetId);
     if (target) {
       window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
@@ -54,11 +64,13 @@ backToTop?.addEventListener('click', e => {
 // === Stats Counter ===
 function animateValue(id, start, end, duration) {
   const obj = document.getElementById(id);
+  if (!obj) return;
+
   let startTime = null;
   const step = timestamp => {
     if (!startTime) startTime = timestamp;
     const progress = Math.min((timestamp - startTime) / duration, 1);
-    obj.innerHTML = Math.floor(progress * (end - start) + start);
+    obj.textContent = Math.floor(progress * (end - start) + start);
     if (progress < 1) window.requestAnimationFrame(step);
   };
   window.requestAnimationFrame(step);
@@ -89,35 +101,89 @@ document.querySelectorAll('.faq-item').forEach(item => {
   });
 });
 
-// === Portfolio Filter ===
-document.querySelectorAll('.filter-btn').forEach(button => {
-  button.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    button.classList.add('active');
-    const filter = button.getAttribute('data-filter');
-    document.querySelectorAll('.portfolio-item').forEach(item => {
-      item.style.display = (filter === 'all' || item.getAttribute('data-category') === filter) ? 'block' : 'none';
+// === Portfolio Filtering + Rendering ===
+const filterButtons = document.querySelectorAll('.filter-btn');
+const projectGrid = document.querySelector('.project-grid');
+
+const projects = [
+  // ... your projects array unchanged ...
+];
+
+function renderProjects(filter = 'all') {
+  if (!projectGrid) return;
+
+  projectGrid.innerHTML = '';
+
+  const filtered = filter === 'all' ? projects : projects.filter(p => p.tags.includes(filter));
+
+  filtered.forEach(project => {
+    const card = document.createElement('a');
+    card.className = 'portfolio-item';
+    card.href = project.websiteUrl;
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
+    card.setAttribute('data-category', project.tags[0]);
+
+    card.innerHTML = `
+      <img src="${project.image}" alt="${project.title}" />
+      <div class="portfolio-overlay">
+        <h3>${project.title}</h3>
+        <p>${project.description}</p>
+        <span class="view-project">View Project <i class="fas fa-arrow-right"></i></span>
+      </div>
+    `;
+
+    projectGrid.appendChild(card);
+  });
+
+  // Animate appearance with GSAP if available
+  if (typeof gsap !== 'undefined') {
+    gsap.utils.toArray('.portfolio-item').forEach((item, i) => {
+      gsap.from(item, {
+        y: 50,
+        opacity: 0,
+        duration: 0.6,
+        delay: i * 0.1,
+        scrollTrigger: {
+          trigger: item,
+          start: "top 90%",
+          toggleActions: "play none none none"
+        }
+      });
+    });
+  }
+}
+
+if (projectGrid) {
+  renderProjects();
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      renderProjects(button.getAttribute('data-filter'));
     });
   });
-});
+}
 
 // === Contact Form Submission ===
 const contactForm = document.getElementById('contactForm');
 contactForm?.addEventListener('submit', function (e) {
   e.preventDefault();
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
+  const name = document.getElementById('name')?.value || 'Guest';
+  const email = document.getElementById('email')?.value || 'your email';
+
   const successMsg = document.createElement('div');
-  successMsg.innerHTML = `
-    <div style="background:#d4edda;color:#155724;padding:15px;border-radius:5px;margin-top:20px;">
-      <strong>Thank you, ${name}!</strong> We'll contact you at ${email}.
-    </div>`;
+  successMsg.style.cssText = 'background:#d4edda;color:#155724;padding:15px;border-radius:5px;margin-top:20px;';
+  successMsg.innerHTML = `<strong>Thank you, ${name}!</strong> We'll contact you at ${email}.`;
+
   contactForm.appendChild(successMsg);
   contactForm.reset();
+
   setTimeout(() => successMsg.scrollIntoView({ behavior: 'smooth' }), 100);
 });
 
-// === Intersection Animation ===
+// === Intersection Animation for Fade In ===
 const fadeElements = document.querySelectorAll('.fade-in');
 const animationObserver = new IntersectionObserver(entries => {
   entries.forEach(entry => {
@@ -182,14 +248,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.currency-toggle span').forEach(span => {
       span.addEventListener('click', function () {
-        document.querySelector('.currency-toggle .active').classList.remove('active');
+        document.querySelector('.currency-toggle .active')?.classList.remove('active');
         this.classList.add('active');
         const currency = this.dataset.currency;
         const symbol = symbols[currency];
         document.querySelectorAll('.pricing-card').forEach((card, i) => {
           const plan = ['starter', 'pro', 'premium'][i];
           const price = card.querySelector('.price');
-          const start = parseInt(price.textContent.replace(/\D/g, ''));
+          if (!price) return;
+          const start = parseInt(price.textContent.replace(/\D/g, '')) || 0;
           const end = rates[currency][plan];
           const duration = 500;
           let startTime = null;
@@ -198,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!startTime) startTime = timestamp;
             const progress = Math.min((timestamp - startTime) / duration, 1);
             const value = Math.floor(progress * (end - start) + start);
-            price.innerHTML = `${symbol}${value}`;
+            price.textContent = `${symbol}${value}`;
             if (progress < 1) window.requestAnimationFrame(step);
           };
           window.requestAnimationFrame(step);
